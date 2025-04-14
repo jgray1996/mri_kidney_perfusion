@@ -46,25 +46,28 @@ class InputOutput:
 
         dicom_files: List[List] = []
 
-        for (root, directories, files) in walk(path):
+        for (root, _, files) in walk(path):
             for file in files:
+                
                 if file.endswith(".dcm"):
                     root_path: Path = Path(root)
                     total_path: Path = root_path/ Path(file)
+
                     if "exvivo" in root.lower():
                         parts: List = total_path.parent.stem.split("_")
                         experiment: str = parts[0].strip("Exp")
                         placement: str = parts[5]
                         time: str = parts[6].split("min")[0]
                         dicom_files.append([str(total_path), "exvivo", experiment, placement, time])
+                    
                     if "invivo" in root.lower():
                         parts: List = total_path.parent.stem.split("_")
                         experiment: str = parts[0].strip("Exp")
                         placement: str = "both"
                         time: str = "0"
                         dicom_files.append([str(total_path), "invivo", experiment, placement, time])
+        
         return dicom_files
-
 
     def read_sequences(self, sequences_in: List[Path]) -> Tuple[List[OrderedDict], List[np.ndarray]]:
         """
