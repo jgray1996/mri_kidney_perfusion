@@ -39,7 +39,7 @@ class InputOutput:
         assert len(segmentations) == len(sequences)
         return sequences, segmentations
     
-    def get_dicom_files(self, path: PathLike) -> list[list]:
+    def get_dicom_files(self, path: PathLike) -> list[tuple]:
         """
         This method returns all dicom files.
         """
@@ -55,20 +55,21 @@ class InputOutput:
 
                     if "exvivo" in root.lower():
                         parts: list = total_path.parent.stem.split("_")
-                        experiment: str = parts[0].strip("Exp")
+                        experiment: int = int(parts[0].strip("Exp"))
                         placement: str = parts[5]
-                        time: str = parts[6].split("min")[0]
-                        dicom_files.append([str(total_path), "exvivo", experiment, placement, time])
+                        time: int = int(parts[6].split("min")[0])
+                        dicom_files.append((str(total_path), "exvivo",
+                                            experiment, placement, int(time)))
                     
                     if "invivo" in root.lower():
                         parts: list = total_path.parent.stem.split("_")
-                        experiment: str = parts[0].strip("Exp")
+                        experiment: int = int(parts[0].strip("Exp"))
                         # Full pork in the toaster
                         placement: str = "both"
                         # Timepoint is always -10
-                        time: str = "-10"
-                        dicom_files.append([str(total_path), "invivo", experiment, placement, time])
-        
+                        time: int = -10
+                        dicom_files.append((str(total_path), "invivo",
+                                            experiment, placement, time))
         return dicom_files
 
     def read_sequences(self, sequences_in: list[Path]) -> tuple[list[OrderedDict], list[np.ndarray]]:
@@ -129,4 +130,4 @@ if __name__ == "__main__":
     io = InputOutput()
     # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
     # print(io.read_sequences(sequences))
-    DWI_dicom = io.get_dicom_files(path=r"C:\Users\James\Documents\MRI_data\DWI")
+    DWI_dicom: list[list[str]] = io.get_dicom_files(path=r"C:\Users\James\Documents\MRI_data\DWI")

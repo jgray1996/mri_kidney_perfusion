@@ -52,9 +52,21 @@ class DatabaseHandler:
             print(f"Succesfully connected to [{self.name}]!")
         pass
 
-    def write_data(self) -> None:
+    def write_data(self, data: list[tuple], file_type: str="dicom") -> None:
         """
         """
+        with sqlite3.connect(self.name) as connection:
+            if file_type.lower() == "dicom":
+                connection.executemany(
+                    """
+                    INSERT OR IGNORE INTO Dicom (
+                        file_path, vivo, experiment, placement, time_point
+                    ) Values(
+                        ?, ?, ?, ?, ?
+                    )
+                    """, data)
+                connection.commit()
+                print(f"{file_type} written succesfully to {self.name}!")
         pass
 
 if __name__ == "__main__":
