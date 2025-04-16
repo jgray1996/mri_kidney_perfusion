@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import nrrd
 from pydicom import dcmread, FileDataset
+import sys
 
 __author__ = "James Gray"
 __version__ = 0.1
@@ -37,14 +38,16 @@ class InputOutput:
         del all_files
 
         assert len(segmentations) == len(sequences)
+
         return sequences, segmentations
-    
-    def get_dicom_files(self, path: PathLike) -> list[tuple]:
+
+    def get_dicom_files_DWI(self, path: PathLike) -> list[tuple]:
         """
-        This method returns all dicom files.
+        This method returns all DWI dicom files.
         """
 
         dicom_files: list[list] = []
+        sequence: str = "DWI"
 
         for (root, _, files) in walk(path):
             for file in files:
@@ -58,8 +61,8 @@ class InputOutput:
                         experiment: int = int(parts[0].strip("Exp"))
                         placement: str = parts[5]
                         time: int = int(parts[6].split("min")[0])
-                        dicom_files.append((str(total_path), "exvivo",
-                                            experiment, placement, int(time)))
+                        dicom_files.append((str(total_path), "exvivo", sequence,
+                                            experiment, placement, time))
                     
                     if "invivo" in root.lower():
                         parts: list = total_path.parent.stem.split("_")
@@ -68,8 +71,66 @@ class InputOutput:
                         placement: str = "both"
                         # Timepoint is always -10
                         time: int = -10
-                        dicom_files.append((str(total_path), "invivo",
+                        dicom_files.append((str(total_path), "invivo", sequence,
                                             experiment, placement, time))
+
+        return dicom_files
+    
+    def get_dicom_files_T1(self, path: PathLike) -> list[tuple]:
+
+        """
+        This method returns all T1 dicom files.
+        """
+
+        dicom_files: list[list] = []
+        sequence: str = "T1"
+        dcm: FileDataset = None
+        unknown_experiment: str = "UNKNOWN_"
+        old_time: int = None
+
+        for i, (root, _, files) in enumerate(walk(path)):
+            for file in files:
+                
+                if file.endswith(".dcm"):
+                    root_path: Path = Path(root)
+                    total_path: Path = root_path/Path(file)
+
+                    if "exvivo" in root.lower():
+                        parts: list = total_path.parent.stem.split("_")
+                        time: int = int(parts[-1].split()[-1])
+
+                        if time != old_time:
+                            dcm: FileDataset = dcmread(total_path)
+
+                        old_time = time
+
+                        try:
+                            experiment: int = int(str(dcm.PatientName).split(" ")[1])
+                        except:
+                            experiment: int = unknown_experiment + str(i)
+
+                        placement: str = "both"
+                        dicom_files.append((str(total_path), "exvivo", sequence,
+                                            experiment, placement, time))
+                    
+                    if "invivo" in root.lower():
+                        parts: list = total_path.parent.stem.split("_")
+                        time: int = int(parts[-1].split()[-1])
+
+                        if time != old_time:
+                            dcm: FileDataset = dcmread(total_path)
+                        old_time = time
+
+                        try:
+                            experiment: int = int(str(dcm.PatientName).split(" ")[1])
+                        except:
+                            # This should be the same counter after each unknown encounter
+                            experiment: int = unknown_experiment + str(i)
+
+                        placement: str = "both"
+                        dicom_files.append((str(total_path), "invivo", sequence,
+                                            experiment, placement, -10))
+
         return dicom_files
 
     def read_sequences(self, sequences_in: list[Path]) -> tuple[list[OrderedDict], list[np.ndarray]]:
@@ -84,7 +145,7 @@ class InputOutput:
         assert len(sequences_in), \
             f"Empty list of sequence files passed..."
 
-        for i, sequence in enumerate(sequences_in):
+        for sequence in sequences_in:
             # Declare types
             data: np.ndarray
             header: OrderedDict
@@ -96,7 +157,7 @@ class InputOutput:
 
         return (headers_out, sequences_out)
 
-    def read_segmentations(self, segmentations_in: list[Path]) -> list[list[OrderedDict], list[np.ndarray]]:
+    def read_segmentations(self, segmentations_in: list[Path]) -> tuple[list[OrderedDict], list[np.ndarray]]:
         """
         This method takes a list of paths of nrrd segmentation files and reads them in
         numpy array format and header format. This method returns a tuple of
@@ -124,10 +185,17 @@ class InputOutput:
         """
         Convert list of dicom files in single nrrd file per experiment.
         """
+        # get a list of files belonging to a certain experiment
+        # read files and headers
+        # create a nested array to write to a nrrd file
+        # create a fitting filename
+        # write object and return filename 
         pass
 
 if __name__ == "__main__":
     io = InputOutput()
     # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
     # print(io.read_sequences(sequences))
-    DWI_dicom: list[list[str]] = io.get_dicom_files(path=r"C:\Users\James\Documents\MRI_data\DWI")
+    # DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path=r"C:\Users\James\Documents\MRI_data\DWI")
+    DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
+    print(DWI_dicom_T1)

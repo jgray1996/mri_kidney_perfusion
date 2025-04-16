@@ -54,22 +54,23 @@ class DatabaseHandler:
 
     def write_data(self, data: list[tuple], file_type: str="dicom") -> None:
         """
+        This method takes a multicursor compatable object and writes it
+        to the database the DataBaseHandler was initialized with.
         """
         with sqlite3.connect(self.name) as connection:
             if file_type.lower() == "dicom":
                 connection.executemany(
                     """
                     INSERT OR IGNORE INTO Dicom (
-                        file_path, vivo, experiment, placement, time_point
-                    ) Values(
-                        ?, ?, ?, ?, ?
-                    )
+                        file_path, vivo, seq, experiment, placement, time_point
+                    ) VALUES (?, ?, ?, ?, ?, ?)
                     """, data)
                 connection.commit()
-                print(f"{file_type} written succesfully to {self.name}!")
+                print(f"{file_type} files written succesfully to {self.name}!")
         pass
 
 if __name__ == "__main__":
+    # test code
     dbh = DatabaseHandler("test_db.db")
     dbh.create_database()
     dbh.create_tables("relational_database.sql")

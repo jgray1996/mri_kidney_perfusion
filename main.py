@@ -4,11 +4,15 @@ from scripts.database import DatabaseHandler
 __author = "James Gray"
 __version__ = 0.1
 
+sequences: list = []
+
 if __name__ == "__main__":
     # Initialize IO class for handling MRI formats
     io: InputOutput = InputOutput()
-    # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
-    DWI_dicom: list[tuple] = io.get_dicom_files(path=r"C:\Users\James\Documents\MRI_data\DWI")
+    DWI_dicom: list[tuple] = io.get_dicom_files_DWI(path=r"C:\Users\James\Documents\MRI_data\DWI")
+    sequences.append(DWI_dicom)
+    T1_dicom: list[tuple] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
+    sequences.append(T1_dicom)
     # initialize database to be working with
     db: DatabaseHandler = DatabaseHandler("databases/test_db.db")
     db.remove_database()
@@ -16,5 +20,6 @@ if __name__ == "__main__":
     db.create_tables("scripts/relational_database.sql")
 
     # write DICOM files to database
-    db.write_data(DWI_dicom, file_type="dicom")
+    for sequence in sequences:
+        db.write_data(sequence, file_type="dicom")
     print("Done.")
