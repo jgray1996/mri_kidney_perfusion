@@ -87,46 +87,44 @@ class InputOutput:
         dcm: FileDataset = None
         unknown_experiment: str = "UNKNOWN_"
         old_time: int = None
+        old_dir: PathLike = None
+        experiment_counter: int = 1
 
         for i, (root, _, files) in enumerate(walk(path)):
+            new_dir: PathLike = Path(root).parts[-3]
+            # Count each new experiment based on parent directory
+            if new_dir != old_dir:
+                experiment_counter += 1
+            old_dir = new_dir
+            
             for file in files:
-                
                 if file.endswith(".dcm"):
                     root_path: Path = Path(root)
                     total_path: Path = root_path/Path(file)
-
                     if "exvivo" in root.lower():
                         parts: list = total_path.parent.stem.split("_")
                         time: int = int(parts[-1].split()[-1])
-
                         if time != old_time:
                             dcm: FileDataset = dcmread(total_path)
-
                         old_time = time
-
                         try:
                             experiment: int = int(str(dcm.PatientName).split(" ")[1])
                         except:
-                            experiment: int = unknown_experiment + str(i)
-
+                            experiment: int = unknown_experiment + str(experiment_counter)
                         placement: str = "both"
                         dicom_files.append((str(total_path), "exvivo", sequence,
                                             experiment, placement, time))
-                    
+
                     if "invivo" in root.lower():
                         parts: list = total_path.parent.stem.split("_")
                         time: int = int(parts[-1].split()[-1])
-
                         if time != old_time:
                             dcm: FileDataset = dcmread(total_path)
                         old_time = time
-
                         try:
                             experiment: int = int(str(dcm.PatientName).split(" ")[1])
                         except:
-                            # This should be the same counter after each unknown encounter
-                            experiment: int = unknown_experiment + str(i)
-
+                            experiment: int = unknown_experiment + str(experiment_counter)
                         placement: str = "both"
                         dicom_files.append((str(total_path), "invivo", sequence,
                                             experiment, placement, -10))
