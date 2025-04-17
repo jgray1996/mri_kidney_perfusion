@@ -25,7 +25,6 @@ if __name__ == "__main__":
     db.create_tables("scripts/relational_database.sql")
 
     # write DICOM files to database
-    for i, sequence in enumerate(sequences):
-        print(i)
+    for sequence in sequences:
         db.write_data(sequence, file_type="dicom")
     print("Done.")

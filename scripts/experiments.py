@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 import nrrd
 from pydicom import dcmread, FileDataset
-import sys
 import re
 
 __author__ = "James Gray"
@@ -18,7 +17,6 @@ class InputOutput:
     and generalizing their type and filepath format.
     """
 
-    # pattern = re.compile(r'(?:\d+mm_)?(?:(\d+)min\w*?_)?(left|right)', re.IGNORECASE)
     pattern = re.compile(r'(?:_?(left|right)[_ ](\d+)min|(\d+)min[_ ](left|right))', re.IGNORECASE)
     pattern_1 = re.compile(r'(left|right|straight)', re.IGNORECASE)
 
@@ -138,7 +136,7 @@ class InputOutput:
     
     def get_dicom_files_T2(self, path: PathLike) -> list[tuple]:
         """
-        This method returns all T1 dicom files.
+        This method returns all T2 dicom files.
         """
         dicom_files: list[tuple] = []
         sequence: str = "T2"
