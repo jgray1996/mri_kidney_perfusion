@@ -144,7 +144,6 @@ class InputOutput:
         sequence: str = "T2"
         old_time: int = None
         dcm: FileDataset = None
-        unknown_experiment: str = "UNKNOWN_"
         old_dir: PathLike = None
         experiment_counter: int = 1
         transation_dict: dict = {"l": "left",
@@ -283,6 +282,6 @@ if __name__ == "__main__":
     # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
     # print(io.read_sequences(sequences))
     # DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path=r"C:\Users\James\Documents\MRI_data\DWI")
-    DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
-    # DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path=r"C:\Users\James\Documents\MRI_data\T2")
-    print(DWI_dicom_T1)
+    # DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
+    DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path=r"C:\Users\James\Documents\MRI_data\T2")
+    print(DWI_dicom_T2)

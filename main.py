@@ -15,7 +15,7 @@ if __name__ == "__main__":
     T1_dicom: list[tuple] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
     sequences.append(T1_dicom)
 
-    T2_dicom: list[tuple] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T2")
+    T2_dicom: list[tuple] = io.get_dicom_files_T2(path=r"C:\Users\James\Documents\MRI_data\T2")
     sequences.append(T2_dicom)
 
     # initialize database to be working with
