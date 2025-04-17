@@ -11,8 +11,13 @@ if __name__ == "__main__":
     io: InputOutput = InputOutput()
     DWI_dicom: list[tuple] = io.get_dicom_files_DWI(path=r"C:\Users\James\Documents\MRI_data\DWI")
     sequences.append(DWI_dicom)
+
     T1_dicom: list[tuple] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
     sequences.append(T1_dicom)
+
+    T2_dicom: list[tuple] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T2")
+    sequences.append(T2_dicom)
+
     # initialize database to be working with
     db: DatabaseHandler = DatabaseHandler("databases/test_db.db")
     db.remove_database()
@@ -20,6 +25,7 @@ if __name__ == "__main__":
     db.create_tables("scripts/relational_database.sql")
 
     # write DICOM files to database
-    for sequence in sequences:
+    for i, sequence in enumerate(sequences):
+        print(i)
         db.write_data(sequence, file_type="dicom")
     print("Done.")
