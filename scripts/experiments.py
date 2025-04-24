@@ -94,7 +94,7 @@ class InputOutput:
         experiment_counter: int = 1
 
         for i, (root, _, files) in enumerate(walk(path)):
-            new_dir: PathLike = Path(root).parts[-3]
+            new_dir: PathLike = Path(root).parts[-2]
             # Count each new experiment based on parent directory
             if new_dir != old_dir:
                 experiment_counter += 1
@@ -153,7 +153,7 @@ class InputOutput:
 
         for (root, _, files) in walk(path):
             # Count each new experiment based on parent directory
-            new_dir: PathLike = Path(root).parts[-3]
+            new_dir: PathLike = Path(root).parts[-2]
             if new_dir != old_dir:
                 experiment_counter += 1
             old_dir = new_dir
@@ -163,6 +163,8 @@ class InputOutput:
                         root_path: Path = Path(root)
                         total_path: Path = root_path/Path(file)
                         metadata: str = root_path.parts[-1].split()
+                        time: int = 0
+                        side: str = ""
                         try:
                             match = self.pattern.findall(metadata[2])
                             group_1 = list(match[0][:2])
@@ -279,7 +281,7 @@ if __name__ == "__main__":
     io = InputOutput()
     # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
     # print(io.read_sequences(sequences))
-    # DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path=r"C:\Users\James\Documents\MRI_data\DWI")
-    # DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path=r"C:\Users\James\Documents\MRI_data\T1")
-    DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path=r"C:\Users\James\Documents\MRI_data\T2")
-    print(DWI_dicom_T2)
+    DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path="../MRI_data/DWI")
+    # DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path="../MRI_data/T1")
+    # DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path="../MRI_data/T2")
+    print(DWI_dicom_DWI)
