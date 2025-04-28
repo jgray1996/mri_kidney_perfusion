@@ -256,19 +256,26 @@ class InputOutput:
         pass
 
 
-    def read_segmentations(self, path: PathLike) -> None:
+    def read_segmentations(self, path: PathLike) -> tuple[list[Path], list[Path]]:
         """
-        This method takes a list of paths of nrrd segmentation files and reads them in
-        numpy array format and header format. This method returns a tuple of
-        Lists each containing all headers and all segmentations.
+        This method takes a path of nrrd segmentation files and reads them in
+        numpy array format and header format. Returns a tuple of lists containing
+        all sequences and all segmentations.
         """
-        all_files: list = []
+        all_files: list[Path] = []
         
-        for i, (root, dirs, files) in enumerate(walk(path)):
-            if len(files):
-                for file in files:
-                    all_files.append(Path(root)/ Path(file))
-        print(all_files)
+        for root, dirs, files in walk(path):
+            for file in files:
+                all_files.append(Path(root) / file)
+        
+        segmentations: list[Path] = [file for file in all_files if "seg" in file.name]
+
+        if not segmentations:
+            segmentations: list[Path] = [file for file in all_files if "label" in file.name]
+
+        sequences: list[Path] = [file for file in all_files if file not in segmentations]
+
+        return (sequences, segmentations)
 
 
     def nrrd_to_matrix(self, nrrds: list[Path]) -> np.ndarray:
