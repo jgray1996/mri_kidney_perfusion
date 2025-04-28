@@ -6,6 +6,7 @@ import numpy as np
 import nrrd
 from pydicom import dcmread, FileDataset
 import re
+from itertools import chain
 
 __author__ = "James Gray"
 __version__ = 0.1
@@ -242,29 +243,6 @@ class InputOutput:
 
         return (headers_out, sequences_out)
 
-    def read_segmentations(self, segmentations_in: list[Path]) -> tuple[list[OrderedDict], list[np.ndarray]]:
-        """
-        This method takes a list of paths of nrrd segmentation files and reads them in
-        numpy array format and header format. This method returns a tuple of
-        Lists each containing all headers and all segmentations.
-        """
-        headers_out: list[OrderedDict] = []
-        segmentations_out: list[np.ndarray] = []
-
-        assert len(segmentations_in), \
-            f"Empty list of segmentation files passed..."
-        
-        for i, segmentation in enumerate(segmentations_in):
-            # Declare types
-            data: np.ndarray
-            header: OrderedDict
-
-            # Fill variables and lists
-            data, header = nrrd.read(segmentation)
-            headers_out.append(header)
-            segmentations_out.append(data)
-
-        return (headers_out, segmentations_out)
     
     def create_nrrd(self, DICOM_in: list[Path]) -> list[np.ndarray]:
         """
@@ -277,11 +255,39 @@ class InputOutput:
         # write object and return filename 
         pass
 
+
+    def read_segmentations(self, path: PathLike) -> None:
+        """
+        This method takes a list of paths of nrrd segmentation files and reads them in
+        numpy array format and header format. This method returns a tuple of
+        Lists each containing all headers and all segmentations.
+        """
+        all_files: list = []
+        
+        for i, (root, dirs, files) in enumerate(walk(path)):
+            if len(files):
+                for file in files:
+                    all_files.append(Path(root)/ Path(file))
+        print(all_files)
+
+
+    def nrrd_to_matrix(self, nrrds: list[Path]) -> np.ndarray:
+        """
+        This method converts a list of paths of nrrd files to a 3d array.
+        """
+        pass
+
+
 if __name__ == "__main__":
     io = InputOutput()
     # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
     # print(io.read_sequences(sequences))
-    DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path="../MRI_data/DWI")
+    # DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path="../MRI_data/DWI")
     # DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path="../MRI_data/T1")
     # DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path="../MRI_data/T2")
-    print(DWI_dicom_DWI)
+    print(io.read_segmentations("../MRI_data/ROI/DWI"))
+    print(io.read_segmentations("../MRI_data/ROI/ASL"))
+    print(io.read_segmentations("../MRI_data/ROI/T2"))
+    print(io.read_segmentations("../MRI_data/ROI/T2star"))
+    print(io.read_segmentations("../MRI_data/ROI/T1"))
+
