@@ -24,27 +24,6 @@ class InputOutput:
     def __init__(self) -> None:
         pass
 
-    def get_nrrd_files(self, path: PathLike) -> tuple[list[Path], list[Path]]:
-        """
-        This method reads all files from a directory which
-        match a certain glob statement.
-        """
-        # Standard .seg.nrrd for segmentation
-        segmentations: list[Path] = [Path(path) for path in glob(f"{path}*seg.nrrd")]
-        # Renhui and Yous special convention
-        if not len(segmentations):
-            segmentations: list[Path] = [Path(path) for path in glob(f"{path}*label.nrrd")]
-        all_files: list[Path] = [Path(path) for path in glob(f"{path}*.nrrd")]
-        sequences: list[Path] = [file for file in all_files if not file in segmentations]
-
-        segmentations.sort(), sequences.sort()
-
-        del all_files
-
-        assert len(segmentations) == len(sequences)
-
-        return sequences, segmentations
-
     def get_dicom_files_DWI(self, path: PathLike) -> list[tuple]:
         """
         This method returns all DWI dicom files.
@@ -256,7 +235,7 @@ class InputOutput:
         pass
 
 
-    def read_segmentations(self, path: PathLike) -> tuple[list[Path], list[Path]]:
+    def read_nrrds(self, path: PathLike) -> tuple[list[Path], list[Path]]:
         """
         This method takes a path of nrrd segmentation files and reads them in
         numpy array format and header format. Returns a tuple of lists containing
@@ -266,7 +245,8 @@ class InputOutput:
         
         for root, dirs, files in walk(path):
             for file in files:
-                all_files.append(Path(root) / file)
+                if file.endswith(".nrrd"):
+                    all_files.append(Path(root) / file)
         
         segmentations: list[Path] = [file for file in all_files if "seg" in file.name]
 
@@ -275,6 +255,8 @@ class InputOutput:
 
         sequences: list[Path] = [file for file in all_files if file not in segmentations]
 
+        segmentations.sort(), sequences.sort()
+
         return (sequences, segmentations)
 
 
@@ -282,19 +264,14 @@ class InputOutput:
         """
         This method converts a list of paths of nrrd files to a 3d array.
         """
-        pass
+        headers, sequences = self.read_sequences(nrrds)
+        return headers, sequences
 
 
 if __name__ == "__main__":
     io = InputOutput()
-    # sequences, segmentations = io.get_files(path="../ROI/DWI/exp*/")
-    # print(io.read_sequences(sequences))
-    # DWI_dicom_DWI: list[list] = io.get_dicom_files_DWI(path="../MRI_data/DWI")
-    # DWI_dicom_T1: list[list] = io.get_dicom_files_T1(path="../MRI_data/T1")
-    # DWI_dicom_T2: list[list] = io.get_dicom_files_T2(path="../MRI_data/T2")
-    print(io.read_segmentations("../MRI_data/ROI/DWI"))
-    print(io.read_segmentations("../MRI_data/ROI/ASL"))
-    print(io.read_segmentations("../MRI_data/ROI/T2"))
-    print(io.read_segmentations("../MRI_data/ROI/T2star"))
-    print(io.read_segmentations("../MRI_data/ROI/T1"))
+    seq, seg = io.read_nrrds("../MRI_data/ROI/T1")
+    io.nrrd_to_matrix(seq)
+    # io.nrrd_to_matrix(seg)
+
 
