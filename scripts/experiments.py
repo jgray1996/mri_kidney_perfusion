@@ -266,6 +266,23 @@ class InputOutput:
         """
         headers, sequences = self.read_sequences(nrrds)
         return headers, sequences
+    
+    def fix_volume_shape(self, volume: list[np.ndarray]) -> list[np.ndarray]:
+        """
+        This module fixes the shape of a passed volume if the
+        dimensions are not n x n and certain orientations are twisted
+        """
+        def twist(vol: np.ndarray):
+            shape: tuple = vol.shape
+            x: int
+            y: int
+            x, y = shape[0], shape[1]
+            if y > x:
+                vol: np.ndarray = np.transpose(vol, (1, 0, 2))
+            return vol
+        return [twist(vol) for vol in volume]
+    
+
 
 
 if __name__ == "__main__":
