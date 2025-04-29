@@ -173,3 +173,5 @@ data/
 ROI/
 *.mp4
 databases/test_db.db
+models/*.model.keras
+MRI_data
