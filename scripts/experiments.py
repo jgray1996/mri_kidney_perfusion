@@ -224,27 +224,29 @@ class InputOutput:
     def create_nrrd(self, DICOM_in: list[Path], 
                     parameters: tuple, 
                     out_path: Path,
-                    replace=True):
+                    replace=True) -> None:
         """
         Convert list of dicom files in single nrrd file per experiment.
         """
-        # get a list of files belonging to a certain experiment
-        # read files and headers
-        volume = []
+        volume: list = []
         exp, seq, time, vivo, place = parameters
-        filename = Path(f"{seq}_{exp}_{time}_{vivo}_{place}.nrrd")
-        f_out = Path(out_path) / filename
+        filename: Path = Path(f"{seq}_{exp}_{time}_{vivo}_{place}.nrrd")
+        f_out: Path = Path(out_path) / filename
         if not replace:
             if f_out.exists():
                 return
+
         for img in DICOM_in:
-            dcm = dcmread(img)
+            dcm: FileDataset = dcmread(img)
             volume.append(dcm.pixel_array)
+
+        # catch that odd duck and skip it
         try:
-            vol = np.array(self.fix_volume_shape(volume))
+            vol: np.ndarray = np.array(self.fix_volume_shape(volume))
         except ValueError:
             print(parameters)
             return
+
         nrrd.write(str(f_out), vol)
         pass
 
