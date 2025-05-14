@@ -299,7 +299,10 @@ class InputOutput:
         return [twist(vol) for vol in volume]
     
     def sort_images(self, images: list[Path]) -> list[Path]:
-        images = [img[0] for img in images]
+        """
+        Sort Images so nrrd volumes are sorted by z axis
+        """
+        images: list = [img[0] for img in images]
         images.sort()
         return images
     
