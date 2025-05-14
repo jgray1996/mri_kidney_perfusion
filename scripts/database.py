@@ -69,6 +69,18 @@ class DatabaseHandler:
                 print(f"{file_type} files written succesfully to {self.name}!")
         pass
 
+    def get_experiments_from_db(self) -> None:
+        """"""
+        with sqlite3.connect(self.name) as connection:
+            cursor = connection.cursor()
+            cursor.execute("""SELECT 
+                                    DISTINCT(experiment), seq, time_point, vivo 
+                                    FROM Dicom 
+                                    ORDER BY experiment""")
+            res = cursor.fetchall()
+        return res
+
+
 if __name__ == "__main__":
     # test code
     dbh = DatabaseHandler("test_db.db")

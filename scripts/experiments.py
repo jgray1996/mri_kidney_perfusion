@@ -1,4 +1,3 @@
-from glob import glob
 from typing import OrderedDict
 from os import PathLike, walk
 from pathlib import Path
@@ -6,7 +5,6 @@ import numpy as np
 import nrrd
 from pydicom import dcmread, FileDataset
 import re
-from itertools import chain
 
 __author__ = "James Gray"
 __version__ = 0.1
@@ -284,11 +282,6 @@ class InputOutput:
     
 
 
-
 if __name__ == "__main__":
     io = InputOutput()
-    seq, seg = io.read_nrrds("../MRI_data/ROI/T1")
-    io.nrrd_to_matrix(seq)
-    # io.nrrd_to_matrix(seg)
-
-
+    io.create_nrrd()
