@@ -221,15 +221,31 @@ class InputOutput:
         return (headers_out, sequences_out)
 
     
-    def create_nrrd(self, DICOM_in: list[Path]) -> list[np.ndarray]:
+    def create_nrrd(self, DICOM_in: list[Path], 
+                    parameters: tuple, 
+                    out_path: Path,
+                    replace=True):
         """
         Convert list of dicom files in single nrrd file per experiment.
         """
         # get a list of files belonging to a certain experiment
         # read files and headers
-        # create a nested array to write to a nrrd file
-        # create a fitting filename
-        # write object and return filename 
+        volume = []
+        exp, seq, time, vivo, place = parameters
+        filename = Path(f"{seq}_{exp}_{time}_{vivo}_{place}.nrrd")
+        f_out = Path(out_path) / filename
+        if not replace:
+            if f_out.exists():
+                return
+        for img in DICOM_in:
+            dcm = dcmread(img)
+            volume.append(dcm.pixel_array)
+        try:
+            vol = np.array(self.fix_volume_shape(volume))
+        except ValueError:
+            print(parameters)
+            return
+        nrrd.write(str(f_out), vol)
         pass
 
 
@@ -279,6 +295,11 @@ class InputOutput:
                 vol: np.ndarray = np.transpose(vol, (1, 0, 2))
             return vol
         return [twist(vol) for vol in volume]
+    
+    def sort_images(self, images: list[Path]) -> list[Path]:
+        images = [img[0] for img in images]
+        images.sort()
+        return images
     
 
 

@@ -74,11 +74,25 @@ class DatabaseHandler:
         with sqlite3.connect(self.name) as connection:
             cursor = connection.cursor()
             cursor.execute("""SELECT 
-                                    DISTINCT(experiment), seq, time_point, vivo 
+                                    DISTINCT(experiment), seq, time_point, vivo, placement
                                     FROM Dicom 
                                     ORDER BY experiment""")
             res = cursor.fetchall()
-        return res
+            return res
+    
+    def get_images_from_experiment(self, parameters: tuple) -> list[Path]:
+        with sqlite3.connect(self.name) as connection:
+            cursor = connection.cursor()
+            cursor.execute(f"""SELECT file_path 
+                           FROM Dicom WHERE (
+                                experiment="{parameters[0]}"
+                                AND seq="{parameters[1]}"
+                                AND time_point="{parameters[2]}"
+                                AND vivo="{parameters[3]}"
+                                AND placement="{parameters[4]}"
+                           )""")
+            res = cursor.fetchall()
+            return res
 
 
 if __name__ == "__main__":
