@@ -3,7 +3,7 @@ import nrrd
 import numpy as np
 from tensorflow import keras
 from experiments import InputOutput
-
+import SimpleITK as sitk
 
 class Segmenter:
 
