@@ -10,10 +10,7 @@ LOGO = "https://pre-image.eu/wp-content/uploads/2019/12/PRE-IMAGE-logo-1-white-b
 pn.extension(sizing_mode="stretch_width")
 pn.extension('filedropper')
 
-# Load data
-# seq, q_ = nrrd.read("/home/jgray/Documents/mri_kidney_perfusion/data/processed/nrrds/T1_30_140_exvivo_both.nrrd")
-# seg, g_ = nrrd.read("/home/jgray/Documents/mri_kidney_perfusion/data/raw/segmentations/T1_30_140_exvivo_both.seg.nrrd")
-
+# Create plot placeholder
 q_, g_ = None, None
 seq = np.zeros((24, 128, 128, 1))
 seg = np.zeros((128, 128, 24, 1))
@@ -74,7 +71,9 @@ load_next = pn.widgets.Button(name="Next scan", button_type="primary")
 file_dropper = pn.widgets.FileDropper(sizing_mode='stretch_both')
 scan_number = pn.widgets.IntSlider(name="Index loaded scans", value=0, start=0, end=1)
 
-# exporting files
+# export files
+output_dir_masks = pn.widgets.FileInput(name="Segmentation masks output", directory=True)
+toggle_batch = pn.widgets.Toggle(name='Generate new batch file', button_type='success')
 export = pn.widgets.Button(name="Render masks with current settings", button_type="primary")
 
 # updater functions
@@ -150,7 +149,7 @@ def load_images(seq_file, seg_file):
         # Update volume slice widget limits and preserve relative position
         new_slice_value = int(current_slice_ratio * (seq.shape[0] - 1))
         volume_slice.param.update(start=0, end=seq.shape[0]-1, value=new_slice_value)
-        int_range_slider.param.update(start=0, end=seq.shape[0], value=(0, seq.shape[0]))
+        # int_range_slider.param.update(start=0, end=seq.shape[0], value=(0, seq.shape[0]))
         
         # Update the plot
         update_all(volume_slice.value, probability_slider.value)
@@ -217,9 +216,12 @@ load_next.param.watch(next_scan, 'clicks')
 # Layout
 pn.template.FastListTemplate(
     title="Probability cut-off utility",
-    sidebar=[LOGO, probability_slider, pn.Row(flip_left, flip_right), mirror, volume_slice, int_range_slider, export],
+    sidebar=[LOGO, probability_slider, pn.Row(flip_left, flip_right), mirror, volume_slice, int_range_slider],
     main=pn.Tabs(pn.Column(pn.panel("# Import Batch file"), file_dropper, name="Batch file"),
                  pn.Column(pn.panel("# Preview of current settings"), 
-                           pn.Row(load_prev, load_next), scan_number, component, name="Edit"),
-                 pn.Column(pn.panel("# Export Settings"), name="Export"))
+                           pn.Row(load_prev, load_next), scan_number, component, name="Preview"),
+                 pn.Column(pn.panel("""# Export Settings  
+                                    Select an output directory for exported masks"""),
+                           pn.Row(pn.Column(output_dir_masks, toggle_batch, export)
+                                  ), name="Export"))
 ).servable()
