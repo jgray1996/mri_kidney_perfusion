@@ -216,11 +216,12 @@ def export_dir(event):
     print(output_dir_masks.value)
 
 def on_export_press(event):
+    print("exporting masks")
     exporter = Exporter(rotations_flips,
                         batch,
                         output_dir_masks.value[0])
-    
-    return
+    print("export done")
+
 
 # Watch for parameter changes
 volume_slice.param.watch(on_slice_change, 'value')
