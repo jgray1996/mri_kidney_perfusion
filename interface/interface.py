@@ -4,6 +4,7 @@ import nrrd
 from matplotlib.figure import Figure
 import pandas as pd
 from io import StringIO
+from exporting import Exporter
 
 LOGO = "https://pre-image.eu/wp-content/uploads/2019/12/PRE-IMAGE-logo-1-white-background-scaled.png"
 
@@ -28,7 +29,9 @@ def load_seg(file):
 
 # Saving parameters
 rotations_flips = {"rot":-1,
-                   "flip":True}
+                   "flip":True,
+                   "scope": (0, seq.shape[0]),
+                   "prob": .75}
 
 seg = np.rot90(seg, k=rotations_flips["rot"])
 
@@ -72,7 +75,7 @@ file_dropper = pn.widgets.FileDropper(sizing_mode='stretch_both')
 scan_number = pn.widgets.IntSlider(name="Index loaded scans", value=0, start=0, end=1)
 
 # export files
-output_dir_masks = pn.widgets.FileInput(name="Segmentation masks output", directory=True)
+output_dir_masks = pn.widgets.FileSelector(name="Segmentation masks output")
 toggle_batch = pn.widgets.Toggle(name='Generate new batch file', button_type='success')
 export = pn.widgets.Button(name="Render masks with current settings", button_type="primary")
 
@@ -108,6 +111,9 @@ def on_slice_change(event):
     update_all(event.new, probability_slider.value)
 
 def on_cutoff_change(event):
+    global rotations_flips
+    rotations_flips["prob"] = probability_slider.value
+    print(rotations_flips)
     update_all(volume_slice.value, event.new)
 
 def on_right_press(event):
@@ -201,17 +207,38 @@ def next_scan(event):
     if scan_number.value < n_scans - 1:
         scan_number.value += 1
 
+def update_scope(event):
+    global rotations_flips
+    rotations_flips["scope"] = int_range_slider.value
+    print(rotations_flips)
+
+def export_dir(event):
+    print(output_dir_masks.value)
+
+def on_export_press(event):
+    exporter = Exporter(rotations_flips,
+                        batch,
+                        output_dir_masks.value[0])
+    
+    return
+
 # Watch for parameter changes
 volume_slice.param.watch(on_slice_change, 'value')
 probability_slider.param.watch(on_cutoff_change, 'value')
 flip_right.param.watch(on_right_press, 'clicks')
 flip_left.param.watch(on_left_press, 'clicks')
 mirror.param.watch(on_mirror_press, 'clicks')
+int_range_slider.param.watch(update_scope, 'value')
 
+#
 file_dropper.param.watch(batch_read, 'value')
 scan_number.param.watch(on_scan_number_change, 'value')
 load_prev.param.watch(prev_scan, 'clicks')
 load_next.param.watch(next_scan, 'clicks')
+
+# export updates
+output_dir_masks.param.watch(export_dir, 'value')
+export.param.watch(on_export_press, "clicks")
 
 # Layout
 pn.template.FastListTemplate(
@@ -220,8 +247,7 @@ pn.template.FastListTemplate(
     main=pn.Tabs(pn.Column(pn.panel("# Import Batch file"), file_dropper, name="Batch file"),
                  pn.Column(pn.panel("# Preview of current settings"), 
                            pn.Row(load_prev, load_next), scan_number, component, name="Preview"),
-                 pn.Column(pn.panel("""# Export Settings  
-                                    Select an output directory for exported masks"""),
+                 pn.Column(pn.pane.Markdown("# Export Settings", hard_line_break=True),
                            pn.Row(pn.Column(output_dir_masks, toggle_batch, export)
                                   ), name="Export"))
 ).servable()
