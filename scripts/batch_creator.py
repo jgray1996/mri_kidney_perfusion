@@ -18,7 +18,7 @@ class BatchCreator:
                 f_out.write(f"{img},{msk}\n")
 
 if __name__ == "__main__":
-    bc = BatchCreator("../data/processed/segmentations",
-                      "../data/processed/nrrds",
-                      "T1*exvivo_both*")
-    bc.create_batch_file("batch.csv")
+    bc = BatchCreator("/home/jgray/Documents/mri_kidney_perfusion/data/raw/segmentations",
+                      "/home/jgray/Documents/mri_kidney_perfusion/data/processed/nrrds",
+                      "DWI*exvivo_*")
+    bc.create_batch_file("DWI_batch.csv")

@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 import pandas as pd
 from io import StringIO
 from exporting import Exporter
+from pathlib import Path
 
 LOGO = "https://pre-image.eu/wp-content/uploads/2019/12/PRE-IMAGE-logo-1-white-background-scaled.png"
 
@@ -76,7 +77,7 @@ scan_number = pn.widgets.IntSlider(name="Index loaded scans", value=0, start=0, 
 
 # export files
 output_dir_masks = pn.widgets.FileSelector(name="Segmentation masks output")
-toggle_batch = pn.widgets.Toggle(name='Generate new batch file', button_type='success')
+toggle_batch = pn.widgets.Button(name='Generate new batch file', button_type='primary')
 export = pn.widgets.Button(name="Render masks with current settings", button_type="primary")
 
 # updater functions
@@ -168,9 +169,9 @@ def load_images(seq_file, seg_file):
 
 def batch_read(event):
     global batch, n_scans, scan_number
-    if file_dropper.value and "batch.csv" in file_dropper.value:
+    if file_dropper.value and "DWI_batch.csv" in file_dropper.value:
         try:
-            batch = pd.read_csv(StringIO(file_dropper.value["batch.csv"]))
+            batch = pd.read_csv(StringIO(file_dropper.value["DWI_batch.csv"]))
             n_scans = len(batch)
             
             # Update scan_number widget - ensure end is always > start
@@ -222,6 +223,18 @@ def on_export_press(event):
                         output_dir_masks.value[0])
     print("export done")
 
+def on_batch_press(event):
+    print("Saving batch file")
+    output = []
+    for file in batch.Mask:
+        file = Path(file).name
+        new_file = Path(output_dir_masks.value[0]) / file
+        output.append(new_file)
+    new_batch = batch
+    new_batch["Mask"] = output
+    new_batch.to_csv("new_batch.csv", index=False)
+    print("Batch file written!")
+
 
 # Watch for parameter changes
 volume_slice.param.watch(on_slice_change, 'value')
@@ -240,6 +253,7 @@ load_next.param.watch(next_scan, 'clicks')
 # export updates
 output_dir_masks.param.watch(export_dir, 'value')
 export.param.watch(on_export_press, "clicks")
+toggle_batch.param.watch(on_batch_press, "clicks")
 
 # Layout
 pn.template.FastListTemplate(
