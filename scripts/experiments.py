@@ -1,10 +1,12 @@
 from typing import OrderedDict
 from os import PathLike, walk
-from pathlib import Path
+from shutil import copyfile
+from pathlib import Path, PurePath
 import numpy as np
 import nrrd
 from pydicom import dcmread, FileDataset
 import re
+from tqdm import tqdm
 
 __author__ = "James Gray"
 __version__ = 0.1
@@ -21,6 +23,57 @@ class InputOutput:
 
     def __init__(self) -> None:
         pass
+
+
+    # TODO: This is not correct, I will be needing the pre-processed DWI images
+    # TODO: Read and parse the b0 directory 
+    # TODO: This does not have to be added to the database right?
+
+    def get_nrrd_files_DWI(self, path: PathLike) -> list[list]:
+        """
+        This function collects all pre processed nrrd files and formats
+        them with meta data.
+        """
+
+        names = []
+        for (root, _, files) in walk(path):
+            for file in files:
+                if file.endswith("_b0.nrrd"):
+                    root = PurePath(root)
+                    file = PurePath(file)
+                    parts = root.parts
+                    last_encoding = parts[-1].split('_')[1:3]
+                    # path
+                    full_path = root/file
+                    # vivo
+                    vivo = parts[-2]
+                    # sequence
+                    sequence = "DWI"
+                    # time
+                    time = last_encoding[-1].strip("MIN")
+                    # experiment
+                    experiment = parts[-3].split()[1]
+                    # placement
+                    if last_encoding[0].startswith("R"):
+                        placement = "right"
+                    elif last_encoding[0].startswith("L"):
+                        placement = "left"
+                    else:
+                        vivo = "invivo"
+                        placement = "both"
+                        time = "-10"
+                    name = [full_path, sequence, experiment, time, vivo.lower(), placement]
+                    names.append(name)
+        return names
+    
+    def move_and_rename(self, names, target: PathLike):
+
+        for name in tqdm(names):
+            f_in = name[0]
+            target = Path(target)
+            f_out = '_'.join(name[1:]) + ".nrrd"
+            target_f_out = target/f_out
+            copyfile(f_in, target_f_out)
 
     def get_dicom_files_DWI(self, path: PathLike) -> list[tuple]:
         """
@@ -310,4 +363,6 @@ class InputOutput:
 
 if __name__ == "__main__":
     io = InputOutput()
-    io.create_nrrd()
+    # io.create_nrrd()
+    names = io.get_nrrd_files_DWI(path="MRI_data/b0")
+    io.move_and_rename(names, "data/processed/nrrds")
