@@ -7,6 +7,7 @@ import nrrd
 from pydicom import dcmread, FileDataset
 import re
 from tqdm import tqdm
+import sys
 
 __author__ = "James Gray"
 __version__ = 0.1
@@ -24,10 +25,47 @@ class InputOutput:
     def __init__(self) -> None:
         pass
 
+    def get_DICOM_files_ASL(self, path: PathLike) -> list[list]:
 
-    # TODO: This is not correct, I will be needing the pre-processed DWI images
-    # TODO: Read and parse the b0 directory 
-    # TODO: This does not have to be added to the database right?
+        names = []
+        for (root, _, files) in walk(path):
+            root = PurePath(root)
+            for file in files:
+                if file.endswith(".dcm"):
+                    file = PurePath(file)
+                    path = root/file
+                    parts = root.parts
+                    meta = parts[-1].split()[0].split('_')
+                    experiment = meta[0].lower().strip("exp")
+                    vivo = meta[1].lower()
+                    if vivo.startswith("ex"):
+                        placement = meta[2].lower()
+                        if placement.startswith('r'):
+                            placement = "right"
+                        else:
+                            placement = "left"
+                        time = meta[3].lower().strip("min")
+                    if vivo.startswith("in"):
+                        placement = "both"
+                        time = "-10"
+                    names.append([str(path), "ASL", experiment, time, vivo, placement])
+        return names
+    
+    def get_dicom_files_T2star(self, path: PathLike) -> list[list]:
+        names = []
+
+        for (root, _, files) in walk(path):
+            if "cor " in root.lower():
+                root = PurePath(root)
+                for file in files:
+                    if file.endswith(".dcm"):
+                        file = PurePath(file)
+                        path = root/file
+                        parts = path.parts
+                        vivo = parts[2].lower()
+                        print(parts)
+        return names
+
 
     def get_nrrd_files_DWI(self, path: PathLike) -> list[list]:
         """
@@ -35,44 +73,41 @@ class InputOutput:
         them with meta data.
         """
 
-        names = []
+        names: list = []
         for (root, _, files) in walk(path):
             for file in files:
                 if file.endswith("_b0.nrrd"):
-                    root = PurePath(root)
-                    file = PurePath(file)
-                    parts = root.parts
-                    last_encoding = parts[-1].split('_')[1:3]
-                    # path
-                    full_path = root/file
-                    # vivo
-                    vivo = parts[-2]
-                    # sequence
-                    sequence = "DWI"
-                    # time
-                    time = last_encoding[-1].strip("MIN")
-                    # experiment
-                    experiment = parts[-3].split()[1]
-                    # placement
+                    root: PurePath = PurePath(root)
+                    file: PurePath = PurePath(file)
+                    parts: list = root.parts
+                    last_encoding: list = parts[-1].split('_')[1:3]
+                    full_path: PurePath = root/file
+                    vivo: str = parts[-2]
+                    sequence: str = "DWI"
+                    time: str = last_encoding[-1].strip("MIN")
+                    experiment: str = parts[-3].split()[1]
                     if last_encoding[0].startswith("R"):
-                        placement = "right"
+                        placement: str = "right"
                     elif last_encoding[0].startswith("L"):
-                        placement = "left"
+                        placement: str = "left"
                     else:
-                        vivo = "invivo"
-                        placement = "both"
-                        time = "-10"
-                    name = [full_path, sequence, experiment, time, vivo.lower(), placement]
+                        vivo: str = "invivo"
+                        placement: str = "both"
+                        time: str = "-10"
+                    name: list = [full_path, sequence, experiment, time, vivo.lower(), placement]
                     names.append(name)
         return names
     
-    def move_and_rename(self, names, target: PathLike):
+    def move_and_rename(self, names: list[list], target: PathLike) -> None:
+        """
+        Moves nrrds and encodes the metadata in the filename
+        """
 
         for name in tqdm(names):
-            f_in = name[0]
-            target = Path(target)
-            f_out = '_'.join(name[1:]) + ".nrrd"
-            target_f_out = target/f_out
+            f_in: Path = name[0]
+            target: Path = Path(target)
+            f_out: str = '_'.join(name[1:]) + ".nrrd"
+            target_f_out: Path = target/f_out
             copyfile(f_in, target_f_out)
 
     def get_dicom_files_DWI(self, path: PathLike) -> list[tuple]:
@@ -349,6 +384,7 @@ class InputOutput:
             if y > x:
                 vol: np.ndarray = np.transpose(vol, (1, 0, 2))
             return vol
+
         return [twist(vol) for vol in volume]
     
     def sort_images(self, images: list[Path]) -> list[Path]:
@@ -363,6 +399,7 @@ class InputOutput:
 
 if __name__ == "__main__":
     io = InputOutput()
+    io.get_dicom_files_T2star("MRI_data/T2star")
     # io.create_nrrd()
-    names = io.get_nrrd_files_DWI(path="MRI_data/b0")
-    io.move_and_rename(names, "data/processed/nrrds")
+    # names = io.get_nrrd_files_DWI(path="MRI_data/b0")
+    # io.move_and_rename(names, "data/processed/nrrds")

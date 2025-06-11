@@ -3,7 +3,7 @@ from scripts.experiments import InputOutput
 from tqdm import tqdm
 
 
-db = DatabaseHandler("databases/test_db.db")
+db = DatabaseHandler("databases/dicom.db")
 io = InputOutput()
 all_experiments = db.get_experiments_from_db()
 

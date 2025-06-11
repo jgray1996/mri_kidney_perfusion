@@ -169,9 +169,9 @@ def load_images(seq_file, seg_file):
 
 def batch_read(event):
     global batch, n_scans, scan_number
-    if file_dropper.value and "DWI_batch.csv" in file_dropper.value:
+    if file_dropper.value and "batch.csv" in file_dropper.value:
         try:
-            batch = pd.read_csv(StringIO(file_dropper.value["DWI_batch.csv"]))
+            batch = pd.read_csv(StringIO(file_dropper.value["batch.csv"]))
             n_scans = len(batch)
             
             # Update scan_number widget - ensure end is always > start

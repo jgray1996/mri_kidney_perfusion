@@ -175,3 +175,10 @@ ROI/
 databases/test_db.db
 models/*.model.keras
 MRI_data
+notebooks/DWI_exvivo_data.pkl
+.DS_Store
+*.xlsx
+*.csv
+*.db
+scripts/shape_converter.py
+*.yaml

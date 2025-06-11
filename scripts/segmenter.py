@@ -2,6 +2,7 @@ from pathlib import Path
 import nrrd
 import numpy as np
 from tensorflow import keras
+from tqdm import tqdm
 
 class Segmenter:
 
@@ -22,11 +23,30 @@ class Segmenter:
         print(f"Loading model: {self.model}")
         model = self.load_model(self.model)
         model.name = "model"
-        if reshape:
-            model = self.reshape_input(model)
+        # if reshape:
+        #     model = self.reshape_input(model)
 
+        # # TODO Verify if this shittery works with b0 sequences which are preprocessed
+        # # get discriptive statistics
+        # datas = []
+
+        # print("Collecting discriptive statistics for scaling and normalizing")
+        # for file in nrrds:
+        #     data, _ = nrrd.read(str(file))
+        #     if data.shape[0] == 30:
+        #         print(file)
+        #         return
+        #     datas.append(data)
+        # print("Shape: ",np.array(datas).shape)
+        # print("Max: ", np.array(datas).max())
+        # print("Min: ", np.array(datas).min())
+        # print("Mean: ", np.array(datas).mean())
+        # print("STD: ", np.std(np.array(datas)))
+
+        # return
 
         for file in nrrds:
+            print(file)
             data, header = nrrd.read(str(file)) 
             volume = np.expand_dims(data, axis=-1)
             seg_out = self.output_directory/ Path(file.stem + ".seg.nrrd")
@@ -41,8 +61,8 @@ class Segmenter:
 
     def reshape_input(self, model):
         input_layer = keras.Input(shape=(128, 128, 1))
-        resized = keras.layers.Resizing(96, 96)(input_layer)
-        output = model(resized)
+        center_cropped = keras.layers.CenterCrop(height=96, width=96)(input_layer)
+        output = model(center_cropped)
 
         wrapped_model = keras.Model(inputs=input_layer, outputs=output)
         return wrapped_model
@@ -58,6 +78,19 @@ class Segmenter:
     
     def scale_data(self, volume, upper=3517):
         return np.array(volume)/upper
+    
+    def clip_std(self, vol, sds=5):
+        """
+        Keep only specified amount of data from the mean
+        """
+        avg = vol.mean()
+        std = np.std(vol)
+        upper = avg + (sds * std)
+        avg, std, upper
+        vol = np.clip(vol, a_min=0, a_max=upper)
+        return vol
+
+
     
     def clip_data(self, vol, upper=None, lower=None):
         return
