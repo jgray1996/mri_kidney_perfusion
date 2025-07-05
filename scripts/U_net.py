@@ -206,7 +206,7 @@ if __name__ == "__main__":
                         batch_size=batch_size)
         
         # save history
-        with open(f"{name}.pkl", "+bw") as p_out:
+        with open(f"{name}_training_history.pkl", "+bw") as p_out:
             pickle.dump(history, p_out)
 
     # predicting mode
