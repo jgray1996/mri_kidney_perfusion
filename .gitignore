@@ -182,3 +182,6 @@ notebooks/DWI_exvivo_data.pkl
 *.db
 scripts/shape_converter.py
 *.yaml
+models/
+unet_training/
+unet_unlabeled/
