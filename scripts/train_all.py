@@ -1,12 +1,14 @@
 import sys
 import subprocess
 
+EPOCHS = 300
+
 # T1
 code1 = subprocess.call(
     [
         "python3", "U_net.py",
         "-t",
-        "-e", "1",
+        "-e", f"{EPOCHS}",
         "-a", "0.00001",
         "-b", "28",
         "-s", "../models/T1.keras",
@@ -24,7 +26,7 @@ code2 = subprocess.call(
     [
         "python3", "U_net.py",
         "-t",
-        "-e", "1",
+        "-e", f"{EPOCHS}",
         "-a", "0.00001",
         "-b", "28",
         "-s", "../models/ASL.keras",
@@ -42,7 +44,7 @@ code3 = subprocess.call(
     [
         "python3", "U_net.py",
         "-t",
-        "-e", "1",
+        "-e", f"{EPOCHS}",
         "-a", "0.00001",
         "-b", "28",
         "-s", "../models/DWI.keras",
@@ -60,7 +62,7 @@ code4 = subprocess.call(
     [
         "python3", "U_net.py",
         "-t",
-        "-e", "1",
+        "-e", f"{EPOCHS}",
         "-a", "0.00001",
         "-b", "28",
         "-s", "../models/T2.keras",
@@ -78,7 +80,7 @@ code5 = subprocess.call(
     [
         "python3", "U_net.py",
         "-t",
-        "-e", "1",
+        "-e", f"{EPOCHS}",
         "-a", "0.00001",
         "-b", "28",
         "-s", "../models/T2star.keras",
