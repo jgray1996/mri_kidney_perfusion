@@ -18,9 +18,19 @@ This repository contains code and methods used by the **PREIMAGE-1** study. In t
 Objectively assessing the physiological state of donor kidneys is complicated. True methods of capturing the physiological state are invasive, damage the kidney and are impractical due to time restrains surounding the transplantation process. **PREIMAGE** aims to explore radiomics based solution for practical and objective tissue assesment.
 
 ## 🛫 Get Started
+Get started by cloning the repository.
+
 ```{bash}
-git clone github.com/this_repo
+git clone https://github.com/jgray1996/mri_kidney_perfusion
 ```
+
+Within the repository it is expected, relevant data is stored in a directory called `data`.
+
+Install the right dependencies with conda through the `mri.yaml`
+
+```{bash}
+conda env create -f mri.yaml
+``` 
 
 ## ⚙️ Run
 ### Create database
