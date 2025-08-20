@@ -26,7 +26,7 @@ git clone https://github.com/jgray1996/mri_kidney_perfusion
 
 Within the repository it is expected, relevant data is stored in a directory called `data`.
 
-Install the right dependencies with conda through the `mri.yaml`
+Install the right dependencies with conda through the `mri.yaml`.
 
 ```{bash}
 conda env create -f mri.yaml
@@ -34,8 +34,10 @@ conda env create -f mri.yaml
 
 ## ⚙️ Run
 ### Create database
+Running the following command will create a database of all of the available `DICOM` files.
+
 ```{bash}
-echo hi!
+python main.py
 ```
 
 ### Concatanate NRRD files
