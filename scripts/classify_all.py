@@ -15,7 +15,7 @@ if code1 != 0:
         "Error occured during T1 classification"
     )
 
-T2
+# T2
 code1 = subprocess.call(
     [
         "python", "U_net.py",

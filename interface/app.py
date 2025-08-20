@@ -102,8 +102,8 @@ def update_visualization(slider_z_axis, file_slider, probability_slider, files):
         loaded_proba = proba[file_slider][slider_z_axis]
         mask = np.zeros_like(loaded_proba)
         mask[loaded_proba > probability_slider] = 1
-        mask = hv.Image(mask).opts(title="changed parameter")
-        plot1.object = hv.Image(sequences[file_slider][...,slider_z_axis]).opts(title="changed parameter") + mask
+        mask = hv.Image(mask).opts(title="Generated Mask")
+        plot1.object = hv.Image(sequences[file_slider][...,slider_z_axis]).opts(title="MRI Sequence") + mask
     else:
         plot1.object = hv.Image(np.random.rand(100, 100)).opts(title="changed parameter")
 
