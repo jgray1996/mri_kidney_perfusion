@@ -12,6 +12,8 @@ Code repository for functional MRI radiogenomics project PREIMAGE1 / 2
 - [Abstract](#-abstract-)
 
 ## 📝 Description
+This repository contains code and methods used by the **PREIMAGE-1** study. In this study, MRI scans are interpreted as a proxy for tissue sampling. 
+
 
 ## ❓ Why? 
 
