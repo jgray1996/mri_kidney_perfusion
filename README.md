@@ -1,7 +1,7 @@
 ![image](https://pre-image.eu/wp-content/uploads/2019/12/PRE-IMAGE-logo-1-white-background-scaled.png)
 
-# PREIMAGE1 - Radiomics
-Code repository for functional MRI radiogenomics project PREIMAGE1 / 2
+# PREIMAGE-1 - Radiomics
+Code repository for functional MRI radiogenomics project: **PREIMAGE-1**
 
 ## 📘 Table of Contents
 - [Description](#-description-)
@@ -12,10 +12,10 @@ Code repository for functional MRI radiogenomics project PREIMAGE1 / 2
 - [Abstract](#-abstract-)
 
 ## 📝 Description
-This repository contains code and methods used by the **PREIMAGE-1** study. In this study, MRI scans are interpreted as a proxy for tissue sampling. 
-
+This repository contains code and methods used by the **PREIMAGE-1** study. In this study, MRI scans are interpreted as a proxy for tissue sampling. This study makes use of deep-learning image segmentation, radiomics features and gradient boosting classification/ regression.
 
 ## ❓ Why? 
+Objectively assessing the physiological state of donor kidneys is complicated. True methods of capturing the physiological state are invasive, damage the kidney and are impractical due to time restrains surounding the transplantation process. **PREIMAGE** aims to explore radiomics based solution for practical and objective tissue assesment.
 
 ## 🛫 Get Started
 ```{bash}
