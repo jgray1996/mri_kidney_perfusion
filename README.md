@@ -35,36 +35,29 @@ conda env create -f mri.yaml
 ## ⚙️ Run
 ### Create database
 Running the following command will create a database of all of the available `DICOM` files.
-
 ```{bash}
 python main.py
 ```
 
 ### Concatanate NRRD files
+The following command can merge the `DICOM` files into `NRRD` files.
 ```{bash}
-echo hi!
+python scripts/experiments.py
 ```
 
 ### Train U-NET
 ```{bash}
-echo hi!
+python scripts/train_all.py
 ```
 
 ### Segment U-NET
 ```{bash}
-echo hi!
+python scripts/classify_all.py
 ```
 
 ### Post-process segmentation U-NET
 ```{bash}
 panel serve interface/app.py
-```
-
-
-
-### Radiomics modeling
-```{bash}
-echo hi!
 ```
 
 ## 👨‍💻 Abstract
